@@ -1,6 +1,8 @@
 package com.felipearruda.redditclone.controller;
 
 import com.felipearruda.redditclone.dto.RegisterRequest;
+import com.felipearruda.redditclone.model.AuthenticationResponse;
+import com.felipearruda.redditclone.model.LoginRequest;
 import com.felipearruda.redditclone.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -24,5 +26,10 @@ public class AuthController {
     public ResponseEntity<String> verifyAccount(@PathVariable String token) {
         authService.verifyAccount(token);
         return new ResponseEntity<>("Conta ativada com sucesso", HttpStatus.OK);
+    }
+
+    @PostMapping("/login")
+    public AuthenticationResponse login(@RequestBody LoginRequest loginRequest){
+        return authService.login(loginRequest);
     }
 }

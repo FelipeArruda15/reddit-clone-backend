@@ -1,14 +1,16 @@
 package com.felipearruda.redditclone.service;
 
+import com.felipearruda.redditclone.config.JWTUtils;
 import com.felipearruda.redditclone.dto.RegisterRequest;
 import com.felipearruda.redditclone.exception.SpringRedditException;
-import com.felipearruda.redditclone.model.NotificationEmail;
-import com.felipearruda.redditclone.model.User;
-import com.felipearruda.redditclone.model.VerificationToken;
+import com.felipearruda.redditclone.model.*;
 import com.felipearruda.redditclone.repository.UserRepository;
 import com.felipearruda.redditclone.repository.VerificationTokenRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,15 +29,17 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final VerificationTokenRepository verificationTokenRepository;
-    private final EmailContentBuilder emailContentBuilder;
     private final EmailService emailService;
+    private final AuthenticationManager authenticationManager;
+    private final UserDetailsServiceImpl userDetailsService;
+    private final JWTUtils jwtUtils;
 
     @Transactional
     public void signup(RegisterRequest registerRequest) {
         User user = new User();
         user.setEmail(registerRequest.getEmail());
         user.setUsername(registerRequest.getUsername());
-        user.setPassword(passwordEncoder.encode(registerRequest.getUsername()));
+        user.setPassword(encodePassword(registerRequest.getPassword()));
         user.setCreated(Instant.now());
         user.setActivated(false);
 
@@ -58,6 +62,10 @@ public class AuthService {
         return token;
     }
 
+    private String encodePassword(String password) {
+        return passwordEncoder.encode(password);
+    }
+
     public void verifyAccount(String token) {
         Optional<VerificationToken> verificationToken = verificationTokenRepository.findByToken(token);
         verificationToken.orElseThrow(() -> new SpringRedditException("Token inválido"));
@@ -71,4 +79,18 @@ public class AuthService {
         user.setActivated(true);
         userRepository.save(user);
     }
+
+    public AuthenticationResponse login(LoginRequest loginRequest) {
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
+                loginRequest.getUsername(), loginRequest.getPassword()));
+
+        UserDetails user = userDetailsService.loadUserByUsername(loginRequest.getUsername());
+
+        if (user != null){
+            String authenticationToken = jwtUtils.generateToken(user);
+            return new AuthenticationResponse(authenticationToken, loginRequest.getUsername());
+        }
+        return null;
+    }
+
 }
