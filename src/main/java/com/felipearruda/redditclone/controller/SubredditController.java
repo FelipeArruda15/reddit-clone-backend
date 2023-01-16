@@ -1,6 +1,6 @@
 package com.felipearruda.redditclone.controller;
 
-import com.felipearruda.redditclone.model.SubredditDto;
+import com.felipearruda.redditclone.dto.SubredditDto;
 import com.felipearruda.redditclone.service.SubredditService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

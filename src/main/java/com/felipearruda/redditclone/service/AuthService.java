@@ -1,6 +1,8 @@
 package com.felipearruda.redditclone.service;
 
 import com.felipearruda.redditclone.config.JWTUtils;
+import com.felipearruda.redditclone.dto.AuthenticationResponse;
+import com.felipearruda.redditclone.dto.LoginRequest;
 import com.felipearruda.redditclone.dto.RegisterRequest;
 import com.felipearruda.redditclone.exception.SpringRedditException;
 import com.felipearruda.redditclone.model.*;

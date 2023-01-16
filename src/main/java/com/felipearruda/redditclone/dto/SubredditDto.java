@@ -1,4 +1,4 @@
-package com.felipearruda.redditclone.model;
+package com.felipearruda.redditclone.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class SubredditDto {
 
-    private Long id;
+    private Long subredditId;
     private String name;
     private String description;
     private Integer postCount;
