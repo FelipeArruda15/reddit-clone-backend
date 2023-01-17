@@ -26,7 +26,7 @@ public class EmailService {
             mimeMessageHelper.setFrom("springredditclone1@gmail.com");
             mimeMessageHelper.setTo(notificationEmail.getRecipient());
             mimeMessageHelper.setSubject(notificationEmail.getSubject());
-            mimeMessageHelper.setText(contentBuilder.build(notificationEmail.getBody()));
+            mimeMessageHelper.setText(notificationEmail.getBody());
         };
 
         try {
