@@ -15,7 +15,7 @@ import java.time.Instant;
 public class VerificationToken {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idToken;
     private String token;
     @OneToOne(fetch = FetchType.LAZY)

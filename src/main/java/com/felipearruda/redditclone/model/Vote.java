@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 public class Vote {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long voteId;
     private VoteType voteType;
     @NotNull
