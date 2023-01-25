@@ -3,6 +3,7 @@ package com.felipearruda.redditclone.service;
 import com.felipearruda.redditclone.config.JWTUtils;
 import com.felipearruda.redditclone.dto.AuthenticationResponse;
 import com.felipearruda.redditclone.dto.LoginRequest;
+import com.felipearruda.redditclone.dto.RefreshTokenRequest;
 import com.felipearruda.redditclone.dto.RegisterRequest;
 import com.felipearruda.redditclone.exception.SpringRedditException;
 import com.felipearruda.redditclone.model.*;
@@ -37,6 +38,7 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final UserDetailsServiceImpl userDetailsService;
     private final JWTUtils jwtUtils;
+    private final RefreshTokenService refreshTokenService;
 
     @Transactional
     public void signup(RegisterRequest registerRequest) {
@@ -92,10 +94,27 @@ public class AuthService {
 
         if (user != null){
             String authenticationToken = jwtUtils.generateToken(user);
-            return new AuthenticationResponse(authenticationToken, loginRequest.getUsername());
+            return AuthenticationResponse.builder()
+                    .authenticationToken(authenticationToken)
+                    .expiresAt(Instant.now().plusMillis(jwtUtils.getJwtExpiration()))
+                    .refreshToken(refreshTokenService.generateRefreshToken().getToken())
+                    .username(loginRequest.getUsername())
+                    .build();
         }
         return null;
     }
+
+    public AuthenticationResponse refreshToken(RefreshTokenRequest refreshTokenRequest){
+        refreshTokenService.validateRefreshToken(refreshTokenRequest.getRefreshToken());
+        String token = jwtUtils.generateTokenWithUsername(refreshTokenRequest.getUsername());
+        return AuthenticationResponse.builder()
+                .authenticationToken(token)
+                .refreshToken(refreshTokenRequest.getRefreshToken())
+                .expiresAt(Instant.now().plusMillis(jwtUtils.getJwtExpiration()))
+                .username(refreshTokenRequest.getUsername())
+                .build();
+    }
+
 
     @Transactional(readOnly = true)
     public User getCurrentUser() {
