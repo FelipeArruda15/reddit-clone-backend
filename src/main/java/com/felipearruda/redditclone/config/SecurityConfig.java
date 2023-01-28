@@ -4,6 +4,7 @@ import com.felipearruda.redditclone.service.UserDetailsServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -23,12 +24,22 @@ public class SecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;
     private final UserDetailsServiceImpl userDetailsService;
+    private static final String[] AUTH_WHITELIST = {
+            "/api/auth/**",
+            "/authenticate",
+            "/swagger-resources/**",
+            "/swagger-ui/**",
+            "/v3/api-docs/**",
+            "/webjars/**"
+    };
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests((auth) -> {
-                    auth.requestMatchers("/api/auth/**").permitAll();
+                    auth.requestMatchers(AUTH_WHITELIST).permitAll();
+                    auth.requestMatchers(HttpMethod.GET, "/api/posts/**").permitAll();
+                    auth.requestMatchers(HttpMethod.GET, "/api/subreddit").permitAll();
                     auth.anyRequest().authenticated();
                 })
                 .sessionManagement()
@@ -58,6 +69,5 @@ public class SecurityConfig {
         return httpSecurity.getSharedObject(AuthenticationManagerBuilder.class)
                 .build();
     }
-
 
 }
